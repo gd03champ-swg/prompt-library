@@ -53,58 +53,44 @@ export function usePrompts() {
     setIsSearching(true);
     
     try {
-      // Simulate LLM-based search with some basic text matching
-      // In a real implementation, this would call an actual LLM API
-      console.log("Searching with query:", query);
+      // Call the real API endpoint for LLM-powered search
+      const response = await fetch(`/api/search-prompts?query=${encodeURIComponent(query)}`);
       
-      // Simulated LLM search based on relevance
-      const results = filteredPrompts.filter(prompt => {
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setSearchResults(data.results || []);
+      
+      // If API fails or returns no results, fallback to local filtering
+      if (!data.results || data.results.length === 0) {
+        console.log("No results from API, falling back to local search");
+        
+        // Basic local filtering as fallback
+        const localResults = filteredPrompts.filter(prompt => {
+          const content = `${prompt.useCase} ${prompt.prompt} ${prompt.teamName}`.toLowerCase();
+          const searchTerm = query.toLowerCase();
+          return content.includes(searchTerm);
+        });
+        
+        setSearchResults(localResults);
+      }
+      
+    } catch (error) {
+      console.error("Error searching prompts:", error);
+      
+      // Fallback to local search in case of API failure
+      const localResults = filteredPrompts.filter(prompt => {
         const content = `${prompt.useCase} ${prompt.prompt} ${prompt.teamName}`.toLowerCase();
         const searchTerm = query.toLowerCase();
         return content.includes(searchTerm);
       });
       
-      // Add a slight delay to simulate API call
-      await new Promise(resolve => setTimeout(resolve, 700));
-      
-      // Sort results by relevance (most relevant first)
-      // In a real LLM implementation, this would be handled by the model
-      const sortedResults = [...results].sort((a, b) => {
-        const scoreA = calculateRelevanceScore(a, query);
-        const scoreB = calculateRelevanceScore(b, query);
-        return scoreB - scoreA;
-      });
-      
-      setSearchResults(sortedResults);
-    } catch (error) {
-      console.error("Error searching prompts:", error);
-      setSearchResults([]);
+      setSearchResults(localResults);
     } finally {
       setIsSearching(false);
     }
-  };
-  
-  // Helper function to calculate a basic relevance score
-  const calculateRelevanceScore = (prompt: Prompt, query: string): number => {
-    const content = `${prompt.useCase} ${prompt.prompt}`.toLowerCase();
-    const searchTerm = query.toLowerCase();
-    
-    // Count occurrences
-    let score = 0;
-    let startIndex = 0;
-    while (true) {
-      const index = content.indexOf(searchTerm, startIndex);
-      if (index === -1) break;
-      score += 1;
-      startIndex = index + 1;
-    }
-    
-    // Boost score if query appears in useCase
-    if (prompt.useCase.toLowerCase().includes(searchTerm)) {
-      score += 3;
-    }
-    
-    return score;
   };
   
   const clearSearch = () => {

@@ -31,7 +31,7 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
     return () => clearTimeout(timer);
   }, [searchValue]);
   
-  // Perform search when debounced search term changes
+  // Perform search when debounced search term changes and onSearch is true
   useEffect(() => {
     if (onSearch && debouncedSearchTerm.trim()) {
       searchPromptsWithLLM(debouncedSearchTerm);
@@ -51,6 +51,16 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
   };
   
   const handleSearch = () => {
+    if (searchValue.trim() === "") {
+      toast({
+        title: "Empty search",
+        description: "Please enter a search query",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+    
     if (onSearch) {
       searchPromptsWithLLM(searchValue);
     } else {
