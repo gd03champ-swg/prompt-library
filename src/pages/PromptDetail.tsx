@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
@@ -9,17 +10,21 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PromptCard } from "@/components/PromptCard";
 
 const PromptDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getPromptById, loading } = usePrompts();
+  const { getPromptById, loading, prompts, hasSearchResults, clearSearch } = usePrompts();
   const [prompt, setPrompt] = useState<any>(null);
   const { toast } = useToast();
   
   useEffect(() => {
     // Scroll to top on mount
     window.scrollTo(0, 0);
+    
+    // Clear any existing search results when navigating to detail page
+    clearSearch();
     
     if (!loading && id) {
       const promptData = getPromptById(parseInt(id));
@@ -29,7 +34,7 @@ const PromptDetail = () => {
         navigate("/");
       }
     }
-  }, [id, loading, getPromptById, navigate]);
+  }, [id, loading, getPromptById, navigate, clearSearch]);
   
   const handleCopyPrompt = () => {
     if (prompt) {
@@ -171,8 +176,26 @@ const PromptDetail = () => {
           
           <PromptSearch 
             defaultPrompt={prompt.prompt}
-            examplePrompt={prompt.examplePrompt} 
+            examplePrompt={prompt.examplePrompt}
+            onSearch={true}
           />
+          
+          {/* Display search results if any */}
+          {hasSearchResults && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-12"
+            >
+              <h3 className="text-xl font-medium mb-6">Search Results</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {prompts.map((promptItem, index) => (
+                  <PromptCard key={promptItem.id} prompt={promptItem} index={index} />
+                ))}
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </main>
     </div>

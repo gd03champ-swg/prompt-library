@@ -82,10 +82,21 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
       return;
     }
     
-    if (onSearch) {
+    // On the detail page, perform the search directly instead of navigating
+    if (location.pathname.startsWith('/prompt/')) {
+      // Set onSearch to true to enable search
+      searchPromptsWithLLM(valueToSearch);
+      
+      // Show a toast to confirm search is running
+      toast({
+        title: "Searching prompts",
+        description: "Using AI to find relevant prompts...",
+        duration: 3000,
+      });
+    } else if (onSearch) {
       searchPromptsWithLLM(valueToSearch);
     } else {
-      // If we're on the detail page, let's navigate to home with the search query
+      // If we're not on the detail page or onSearch isn't true, navigate to home
       navigate(`/?search=${encodeURIComponent(valueToSearch)}`);
     }
   };
