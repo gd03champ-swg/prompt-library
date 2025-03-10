@@ -19,13 +19,16 @@ const PromptDetail = () => {
   const { getPromptById, loading, prompts, hasSearchResults, clearSearch } = usePrompts();
   const [prompt, setPrompt] = useState<Prompt | undefined>(undefined);
   
+  // Split into two separate effects to avoid the infinite loop
   useEffect(() => {
-    // Scroll to top on mount
     window.scrollTo(0, 0);
-    
-    // Clear any existing search results when navigating to detail page
+  }, []);
+
+  useEffect(() => {
     clearSearch();
-    
+  }, [id]); // Only clear search when id changes
+  
+  useEffect(() => {
     if (!loading && id) {
       const promptData = getPromptById(parseInt(id));
       setPrompt(promptData);
@@ -34,11 +37,11 @@ const PromptDetail = () => {
         navigate("/");
       }
     }
-  }, [id, loading, getPromptById, navigate, clearSearch]);
+  }, [id, loading, getPromptById, navigate]);
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-background overflow-x-hidden">
+      <div className="min-h-screen bg-background">
         <Header />
         <main className="container max-w-5xl pt-28 pb-20 px-4 md:px-8">
           <PromptDetailSkeleton />
@@ -52,7 +55,7 @@ const PromptDetail = () => {
   }
   
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <main className="container max-w-5xl pt-28 pb-20 px-4 md:px-8">
