@@ -1,17 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Copy, 
-  Search as SearchIcon, 
-  Loader2, 
-  RefreshCcw, 
-  Globe, 
-  Sparkles, 
-  Paperclip, 
-  AtSign, 
+  RefreshCcw,
+  Globe,
+  Sparkles,
+  Paperclip,
+  AtSign,
   ArrowRight,
   ChevronDown
 } from "lucide-react";
@@ -69,18 +65,6 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
     }
   }, [debouncedSearchTerm, onSearch, searchPromptsWithLLM]);
   
-  const handleCopy = () => {
-    navigator.clipboard.writeText(
-      (defaultPrompt ? defaultPrompt + "\n\n" : "") + (searchValue || examplePrompt || "")
-    );
-    
-    toast({
-      title: "Copied to clipboard",
-      description: "The prompt has been copied to your clipboard.",
-      duration: 2000,
-    });
-  };
-  
   const handleSearch = () => {
     const valueToSearch = searchValue.trim() || (examplePrompt || "").trim();
     
@@ -112,15 +96,7 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
       navigate(`/?search=${encodeURIComponent(valueToSearch)}`);
     }
   };
-  
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-  
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
-  
+
   return (
     <motion.div 
       className="w-full max-w-3xl mx-auto"
@@ -129,98 +105,96 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
       transition={{ duration: 0.5, delay: 0.2 }}
     >
       <div className="flex flex-col gap-2">
-        <div className="relative rounded-xl border border-input bg-background shadow-sm">
-          <Input
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="w-full py-6 px-4 text-base rounded-xl border-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
-            placeholder={isFocused ? "" : "Ask to find answers from your Apps"}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          
-          <div className="absolute left-0 right-0 bottom-0 flex items-center gap-2 px-3 py-2 border-t border-input">
+        <div className="relative rounded-xl border border-input/30 bg-background shadow-sm">
+          <div className="flex items-center px-4">
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-accent w-8 h-8"
+              className="h-8 w-8 shrink-0"
               onClick={() => setSearchValue("")}
             >
               <RefreshCcw className="h-4 w-4" />
             </Button>
             
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn(
-                "rounded-full py-1 px-3 h-8 bg-accent/30 hover:bg-accent/50 border-none gap-1"
-              )}
-            >
-              <div className="flex items-center justify-center rounded-sm bg-red-500 w-4 h-4">
-                <Copy className="h-3 w-3 text-white" />
-              </div>
-              <span>Apps</span>
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full py-1 px-3 h-8 hover:bg-accent gap-1"
-            >
-              <Globe className="h-4 w-4" />
-              <span>Web</span>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full py-1 px-3 h-8 hover:bg-accent gap-1"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>AI Only</span>
-            </Button>
-            
-            <div className="flex-1"></div>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full hover:bg-accent w-8 h-8"
-            >
-              <Paperclip className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full hover:bg-accent w-8 h-8"
-            >
-              <AtSign className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full hover:bg-accent w-8 h-8"
-            >
-              <Globe className="h-4 w-4" />
-              <ChevronDown className="h-3 w-3 ml-1" />
-            </Button>
-            
-            <Button
-              onClick={handleSearch}
-              size="icon"
-              className="rounded-full bg-primary hover:bg-primary/90 transition-colors w-8 h-8"
-              disabled={isSearching}
-            >
-              {isSearching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
+            <Input
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-6 placeholder:text-muted-foreground/60"
+              placeholder={isFocused ? "" : "Ask to find answers from your Apps"}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between border-t border-input/30 px-4 py-2">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 rounded-full bg-accent/30 hover:bg-accent/50 border-none gap-1"
+              >
+                <div className="flex items-center justify-center rounded-sm bg-red-500 w-4 h-4">
+                  <Globe className="h-3 w-3 text-white" />
+                </div>
+                <span>Apps</span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 rounded-full hover:bg-accent gap-1"
+              >
+                <Globe className="h-4 w-4" />
+                <span>Web</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 rounded-full hover:bg-accent gap-1"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>AI Only</span>
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full hover:bg-accent"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full hover:bg-accent"
+              >
+                <AtSign className="h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full hover:bg-accent"
+              >
+                <Globe className="h-4 w-4" />
+                <ChevronDown className="h-3 w-3 ml-1" />
+              </Button>
+
+              <Button
+                onClick={handleSearch}
+                size="icon"
+                className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90"
+                disabled={isSearching}
+              >
                 <ArrowRight className="h-4 w-4" />
-              )}
-            </Button>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
