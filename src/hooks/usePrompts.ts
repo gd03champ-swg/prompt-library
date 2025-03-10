@@ -51,6 +51,17 @@ export function usePrompts() {
     return filteredPrompts[randomIndex];
   };
   
+  const addPrompt = (newPrompt: Omit<Prompt, "id">): Prompt => {
+    // Find the highest ID to generate a new one
+    const highestId = Math.max(...prompts.map(p => p.id), 0);
+    const promptWithId = { ...newPrompt, id: highestId + 1 };
+    
+    // In a real application, you would save to a database here
+    setPrompts(prevPrompts => [...prevPrompts, promptWithId]);
+    
+    return promptWithId;
+  };
+  
   const searchPromptsWithLLM = useCallback(async (query: string): Promise<void> => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -125,6 +136,7 @@ export function usePrompts() {
     setSelectedTeams,
     searchPromptsWithLLM,
     clearSearch,
-    hasSearchResults: searchResults.length > 0
+    hasSearchResults: searchResults.length > 0,
+    addPrompt
   };
 }

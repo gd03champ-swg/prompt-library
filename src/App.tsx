@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import PromptDetail from "./pages/PromptDetail";
 import NotFound from "./pages/NotFound";
 import { motion, AnimatePresence } from "framer-motion";
+import { AddPromptModal } from "./components/AddPromptModal";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           </Routes>
         </AnimatePresence>
       </BrowserRouter>
+      <AddPromptModal />
     </TooltipProvider>
   </QueryClientProvider>
 );

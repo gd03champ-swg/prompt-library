@@ -1,15 +1,16 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
 import { Header } from "@/components/Header";
 import { PromptCard } from "@/components/PromptCard";
 import { FilterTeams } from "@/components/FilterTeams";
 import { Button } from "@/components/ui/button";
-import { Dices } from "lucide-react";
+import { Dices, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useAddPromptModal } from "@/hooks/useAddPromptModal";
 
 const Index = () => {
   const { 
@@ -22,6 +23,7 @@ const Index = () => {
   } = usePrompts();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { openModal } = useAddPromptModal();
   
   // Scroll to top on mount
   useEffect(() => {
@@ -68,13 +70,24 @@ const Index = () => {
             onSelectionChange={setSelectedTeams}
           />
           
-          <Button 
-            onClick={handleFeelingLucky}
-            className="gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90"
-          >
-            <Dices className="h-4 w-4" />
-            I'm Feeling Lucky
-          </Button>
+          <div className="flex space-x-3">
+            <Button 
+              onClick={openModal}
+              variant="outline"
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add your prompt
+            </Button>
+            
+            <Button 
+              onClick={handleFeelingLucky}
+              className="gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90"
+            >
+              <Dices className="h-4 w-4" />
+              I'm Feeling Lucky
+            </Button>
+          </div>
         </div>
         
         {loading ? (
