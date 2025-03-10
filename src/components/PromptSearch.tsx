@@ -15,7 +15,8 @@ interface PromptSearchProps {
 }
 
 export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }: PromptSearchProps) {
-  const [searchValue, setSearchValue] = useState(examplePrompt || "");
+  const [searchValue, setSearchValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,7 +59,7 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
   
   const handleCopy = () => {
     navigator.clipboard.writeText(
-      (defaultPrompt ? defaultPrompt + "\n\n" : "") + searchValue
+      (defaultPrompt ? defaultPrompt + "\n\n" : "") + (searchValue || examplePrompt || "")
     );
     
     toast({
@@ -69,7 +70,9 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
   };
   
   const handleSearch = () => {
-    if (searchValue.trim() === "") {
+    const valueToSearch = searchValue.trim() || (examplePrompt || "").trim();
+    
+    if (valueToSearch === "") {
       toast({
         title: "Empty search",
         description: "Please enter a search query",
@@ -80,10 +83,24 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
     }
     
     if (onSearch) {
-      searchPromptsWithLLM(searchValue);
+      searchPromptsWithLLM(valueToSearch);
     } else {
       // If we're on the detail page, let's navigate to home with the search query
-      navigate(`/?search=${encodeURIComponent(searchValue)}`);
+      navigate(`/?search=${encodeURIComponent(valueToSearch)}`);
+    }
+  };
+  
+  const handleFocus = () => {
+    setIsFocused(true);
+    if (!searchValue && examplePrompt) {
+      setSearchValue("");
+    }
+  };
+  
+  const handleBlur = () => {
+    setIsFocused(false);
+    if (!searchValue && examplePrompt) {
+      setSearchValue("");
     }
   };
   
@@ -100,9 +117,17 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="w-full py-6 px-4 text-base rounded-xl border-input focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-primary/50"
-            placeholder="Enter your specific query here..."
+            placeholder={isFocused ? "Enter your specific query here..." : ""}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
+          
+          {!isFocused && !searchValue && examplePrompt && (
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
+              {examplePrompt}
+            </div>
+          )}
           
           <Button
             onClick={handleCopy}
