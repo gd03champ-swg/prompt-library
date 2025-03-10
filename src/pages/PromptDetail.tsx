@@ -89,7 +89,7 @@ const PromptDetail = () => {
   }
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Header />
       
       <main className="container max-w-5xl pt-28 pb-20 px-4 md:px-8">
@@ -102,12 +102,7 @@ const PromptDetail = () => {
           Back to library
         </Button>
         
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6"
-        >
+        <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
             {prompt.useCase}
           </h1>
@@ -117,17 +112,12 @@ const PromptDetail = () => {
               {prompt.teamName}
             </span>
           </div>
-        </motion.div>
+        </div>
         
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className={cn(
-            "p-6 rounded-xl border bg-card mt-6",
-            "flex flex-col md:flex-row justify-between items-start gap-4"
-          )}
-        >
+        <div className={cn(
+          "p-6 rounded-xl border bg-card mt-6",
+          "flex flex-col md:flex-row justify-between items-start gap-4"
+        )}>
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-muted-foreground mb-2">
               Prompt
@@ -143,30 +133,20 @@ const PromptDetail = () => {
             <Copy className="mr-2 h-4 w-4" />
             Copy
           </Button>
-        </motion.div>
+        </div>
         
         {prompt.howToUse && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-accent rounded-xl p-6 border mt-6"
-          >
+          <div className="bg-accent rounded-xl p-6 border mt-6">
             <h3 className="text-sm font-semibold text-accent-foreground mb-2">
               How to Use It
             </h3>
             <p className="text-base text-accent-foreground/90">
               {prompt.howToUse}
             </p>
-          </motion.div>
+          </div>
         )}
         
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-12"
-        >
+        <div className="mt-12">
           <div className="flex items-center justify-center gap-2 mb-6">
             <SparklesIcon className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold text-center">
@@ -182,21 +162,16 @@ const PromptDetail = () => {
           
           {/* Display search results if any */}
           {hasSearchResults && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-12"
-            >
+            <div className="mt-12">
               <h3 className="text-xl font-medium mb-6">Search Results</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {prompts.map((promptItem, index) => (
                   <PromptCard key={promptItem.id} prompt={promptItem} index={index} />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       </main>
     </div>
   );
