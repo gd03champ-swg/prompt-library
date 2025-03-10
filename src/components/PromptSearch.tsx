@@ -3,10 +3,22 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Search as SearchIcon, Loader2 } from "lucide-react";
+import { 
+  Copy, 
+  Search as SearchIcon, 
+  Loader2, 
+  RefreshCcw, 
+  Globe, 
+  Sparkles, 
+  Paperclip, 
+  AtSign, 
+  ArrowRight,
+  ChevronDown
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
+import { cn } from "@/lib/utils";
 
 interface PromptSearchProps {
   defaultPrompt?: string;
@@ -117,51 +129,99 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
       transition={{ duration: 0.5, delay: 0.2 }}
     >
       <div className="flex flex-col gap-2">
-        <div className="relative">
+        <div className="relative rounded-xl border border-input bg-background shadow-sm">
           <Input
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="w-full py-6 px-4 text-base rounded-xl border-input focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-primary/50"
-            placeholder={isFocused ? "Enter your specific query here..." : ""}
+            className="w-full py-6 px-4 text-base rounded-xl border-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
+            placeholder={isFocused ? "" : "Ask to find answers from your Apps"}
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           
-          {!isFocused && !searchValue && examplePrompt && (
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
-              {examplePrompt}
-            </div>
-          )}
-          
-          <Button
-            onClick={handleCopy}
-            size="sm"
-            variant="ghost"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-primary/10 rounded-lg transition-colors"
-          >
-            <Copy className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
-          </Button>
-        </div>
-        
-        <div className="flex justify-end">
-          <Button 
-            className="bg-primary hover:bg-primary/90 transition-colors duration-300 gap-2"
-            onClick={handleSearch}
-            disabled={isSearching}
-          >
-            {isSearching ? (
-              <>
+          <div className="absolute left-0 right-0 bottom-0 flex items-center gap-2 px-3 py-2 border-t border-input">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-accent w-8 h-8"
+              onClick={() => setSearchValue("")}
+            >
+              <RefreshCcw className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(
+                "rounded-full py-1 px-3 h-8 bg-accent/30 hover:bg-accent/50 border-none gap-1"
+              )}
+            >
+              <div className="flex items-center justify-center rounded-sm bg-red-500 w-4 h-4">
+                <Copy className="h-3 w-3 text-white" />
+              </div>
+              <span>Apps</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full py-1 px-3 h-8 hover:bg-accent gap-1"
+            >
+              <Globe className="h-4 w-4" />
+              <span>Web</span>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full py-1 px-3 h-8 hover:bg-accent gap-1"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>AI Only</span>
+            </Button>
+            
+            <div className="flex-1"></div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-accent w-8 h-8"
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-accent w-8 h-8"
+            >
+              <AtSign className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-accent w-8 h-8"
+            >
+              <Globe className="h-4 w-4" />
+              <ChevronDown className="h-3 w-3 ml-1" />
+            </Button>
+            
+            <Button
+              onClick={handleSearch}
+              size="icon"
+              className="rounded-full bg-primary hover:bg-primary/90 transition-colors w-8 h-8"
+              disabled={isSearching}
+            >
+              {isSearching ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <SearchIcon className="h-4 w-4" />
-                Search
-              </>
-            )}
-          </Button>
+              ) : (
+                <ArrowRight className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>
