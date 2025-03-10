@@ -1,16 +1,22 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Prompt } from "@/types";
 import { promptsData } from "@/data/prompts";
 
 export function usePrompts() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   
   useEffect(() => {
     // Simulate loading from an API
     const timer = setTimeout(() => {
       setPrompts(promptsData);
+      
+      // Set all teams as initially selected
+      const allTeams = [...new Set(promptsData.map(prompt => prompt.teamName))];
+      setSelectedTeams(allTeams);
+      
       setLoading(false);
     }, 800);
     
@@ -30,11 +36,26 @@ export function usePrompts() {
     return [...new Set(teams)];
   };
   
+  const getRandomPrompt = (): Prompt | undefined => {
+    if (filteredPrompts.length === 0) return undefined;
+    const randomIndex = Math.floor(Math.random() * filteredPrompts.length);
+    return filteredPrompts[randomIndex];
+  };
+  
+  const filteredPrompts = useMemo(() => {
+    if (selectedTeams.length === 0) return [];
+    return prompts.filter(prompt => selectedTeams.includes(prompt.teamName));
+  }, [prompts, selectedTeams]);
+  
   return {
-    prompts,
+    prompts: filteredPrompts,
+    allPrompts: prompts,
     loading,
     getPromptById,
     getPromptsByTeam,
-    getAllTeams
+    getAllTeams,
+    getRandomPrompt,
+    selectedTeams,
+    setSelectedTeams
   };
 }
