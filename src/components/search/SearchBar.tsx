@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { SearchInput } from "./SearchInput";
 import { FilterButtons } from "./FilterButtons";
 import { ActionButtons } from "./ActionButtons";
+import { addToSearchHistory } from "./SearchHistory";
 
 interface SearchBarProps {
   value: string;
@@ -26,6 +27,9 @@ export function SearchBar({
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       onSearch();
+      if (value.trim()) {
+        addToSearchHistory(value.trim());
+      }
     }
   };
 
@@ -34,7 +38,7 @@ export function SearchBar({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onSearch]);
+  }, [onSearch, value]);
 
   return (
     <div className="relative rounded-xl border border-input/30 bg-background shadow-sm">
@@ -47,7 +51,12 @@ export function SearchBar({
       
       <div className="flex items-center justify-between border-t border-input/30 px-4 py-2">
         <FilterButtons isSearching={isSearching} />
-        <ActionButtons onSearch={onSearch} isSearching={isSearching} />
+        <ActionButtons onSearch={() => {
+          onSearch();
+          if (value.trim()) {
+            addToSearchHistory(value.trim());
+          }
+        }} isSearching={isSearching} />
       </div>
     </div>
   );

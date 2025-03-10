@@ -3,6 +3,7 @@ import { useState, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
+import { SearchHistory } from "./SearchHistory";
 
 interface SearchInputProps {
   value: string;
@@ -18,6 +19,10 @@ export function SearchInput({ value, onChange, onClear, placeholder }: SearchInp
     onChange(e.target.value);
   };
   
+  const handleHistorySelect = (query: string) => {
+    onChange(query);
+  };
+  
   return (
     <div className="flex items-center px-4">
       <Button
@@ -29,6 +34,8 @@ export function SearchInput({ value, onChange, onClear, placeholder }: SearchInp
       >
         <RefreshCcw className="h-4 w-4" />
       </Button>
+      
+      <SearchHistory onSelectHistory={handleHistorySelect} />
       
       <Input
         value={value}
