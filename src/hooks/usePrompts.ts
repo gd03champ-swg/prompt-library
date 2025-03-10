@@ -26,6 +26,12 @@ export function usePrompts() {
     return () => clearTimeout(timer);
   }, []);
   
+  // Define filteredPrompts before it's used in searchPromptsWithLLM
+  const filteredPrompts = useMemo(() => {
+    if (selectedTeams.length === 0) return [];
+    return prompts.filter(prompt => selectedTeams.includes(prompt.teamName));
+  }, [prompts, selectedTeams]);
+  
   const getPromptById = (id: number): Prompt | undefined => {
     return prompts.find(prompt => prompt.id === id);
   };
@@ -102,11 +108,6 @@ export function usePrompts() {
   const clearSearch = () => {
     setSearchResults([]);
   };
-  
-  const filteredPrompts = useMemo(() => {
-    if (selectedTeams.length === 0) return [];
-    return prompts.filter(prompt => selectedTeams.includes(prompt.teamName));
-  }, [prompts, selectedTeams]);
   
   // Determine which prompts to show: search results or filtered prompts
   const displayPrompts = searchResults.length > 0 ? searchResults : filteredPrompts;
