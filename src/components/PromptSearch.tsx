@@ -92,16 +92,10 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
   
   const handleFocus = () => {
     setIsFocused(true);
-    if (!searchValue && examplePrompt) {
-      setSearchValue("");
-    }
   };
   
   const handleBlur = () => {
     setIsFocused(false);
-    if (!searchValue && examplePrompt) {
-      setSearchValue("");
-    }
   };
   
   return (
