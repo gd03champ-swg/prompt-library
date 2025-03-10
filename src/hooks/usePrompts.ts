@@ -7,6 +7,8 @@ export function usePrompts() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+  const [searchResults, setSearchResults] = useState<Prompt[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   
   useEffect(() => {
     // Simulate loading from an API
@@ -42,20 +44,94 @@ export function usePrompts() {
     return filteredPrompts[randomIndex];
   };
   
+  const searchPromptsWithLLM = async (query: string): Promise<void> => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setIsSearching(true);
+    
+    try {
+      // Simulate LLM-based search with some basic text matching
+      // In a real implementation, this would call an actual LLM API
+      console.log("Searching with query:", query);
+      
+      // Simulated LLM search based on relevance
+      const results = filteredPrompts.filter(prompt => {
+        const content = `${prompt.useCase} ${prompt.prompt} ${prompt.teamName}`.toLowerCase();
+        const searchTerm = query.toLowerCase();
+        return content.includes(searchTerm);
+      });
+      
+      // Add a slight delay to simulate API call
+      await new Promise(resolve => setTimeout(resolve, 700));
+      
+      // Sort results by relevance (most relevant first)
+      // In a real LLM implementation, this would be handled by the model
+      const sortedResults = [...results].sort((a, b) => {
+        const scoreA = calculateRelevanceScore(a, query);
+        const scoreB = calculateRelevanceScore(b, query);
+        return scoreB - scoreA;
+      });
+      
+      setSearchResults(sortedResults);
+    } catch (error) {
+      console.error("Error searching prompts:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+  
+  // Helper function to calculate a basic relevance score
+  const calculateRelevanceScore = (prompt: Prompt, query: string): number => {
+    const content = `${prompt.useCase} ${prompt.prompt}`.toLowerCase();
+    const searchTerm = query.toLowerCase();
+    
+    // Count occurrences
+    let score = 0;
+    let startIndex = 0;
+    while (true) {
+      const index = content.indexOf(searchTerm, startIndex);
+      if (index === -1) break;
+      score += 1;
+      startIndex = index + 1;
+    }
+    
+    // Boost score if query appears in useCase
+    if (prompt.useCase.toLowerCase().includes(searchTerm)) {
+      score += 3;
+    }
+    
+    return score;
+  };
+  
+  const clearSearch = () => {
+    setSearchResults([]);
+  };
+  
   const filteredPrompts = useMemo(() => {
     if (selectedTeams.length === 0) return [];
     return prompts.filter(prompt => selectedTeams.includes(prompt.teamName));
   }, [prompts, selectedTeams]);
   
+  // Determine which prompts to show: search results or filtered prompts
+  const displayPrompts = searchResults.length > 0 ? searchResults : filteredPrompts;
+  
   return {
-    prompts: filteredPrompts,
+    prompts: displayPrompts,
     allPrompts: prompts,
     loading,
+    isSearching,
     getPromptById,
     getPromptsByTeam,
     getAllTeams,
     getRandomPrompt,
     selectedTeams,
-    setSelectedTeams
+    setSelectedTeams,
+    searchPromptsWithLLM,
+    clearSearch,
+    hasSearchResults: searchResults.length > 0
   };
 }

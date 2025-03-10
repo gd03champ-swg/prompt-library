@@ -1,19 +1,42 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Copy } from "lucide-react";
+import { Copy, Search as SearchIcon, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { usePrompts } from "@/hooks/usePrompts";
 
 interface PromptSearchProps {
   defaultPrompt?: string;
   examplePrompt?: string;
+  onSearch?: boolean;
 }
 
-export function PromptSearch({ defaultPrompt, examplePrompt }: PromptSearchProps) {
+export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }: PromptSearchProps) {
   const [searchValue, setSearchValue] = useState(examplePrompt || "");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { searchPromptsWithLLM, isSearching } = usePrompts();
+  
+  // Debounce search input
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchValue);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchValue);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchValue]);
+  
+  // Perform search when debounced search term changes
+  useEffect(() => {
+    if (onSearch && debouncedSearchTerm.trim()) {
+      searchPromptsWithLLM(debouncedSearchTerm);
+    }
+  }, [debouncedSearchTerm, onSearch, searchPromptsWithLLM]);
   
   const handleCopy = () => {
     navigator.clipboard.writeText(
@@ -25,6 +48,15 @@ export function PromptSearch({ defaultPrompt, examplePrompt }: PromptSearchProps
       description: "The prompt has been copied to your clipboard.",
       duration: 2000,
     });
+  };
+  
+  const handleSearch = () => {
+    if (onSearch) {
+      searchPromptsWithLLM(searchValue);
+    } else {
+      // If we're on the detail page, let's navigate to home with the search query
+      navigate(`/?search=${encodeURIComponent(searchValue)}`);
+    }
   };
   
   return (
@@ -41,6 +73,7 @@ export function PromptSearch({ defaultPrompt, examplePrompt }: PromptSearchProps
             onChange={(e) => setSearchValue(e.target.value)}
             className="w-full py-6 px-4 text-base rounded-xl border-input focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-primary/50"
             placeholder="Enter your specific query here..."
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           
           <Button
@@ -54,8 +87,22 @@ export function PromptSearch({ defaultPrompt, examplePrompt }: PromptSearchProps
         </div>
         
         <div className="flex justify-end">
-          <Button className="bg-primary hover:bg-primary/90 transition-colors duration-300">
-            Search
+          <Button 
+            className="bg-primary hover:bg-primary/90 transition-colors duration-300 gap-2"
+            onClick={handleSearch}
+            disabled={isSearching}
+          >
+            {isSearching ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Searching...
+              </>
+            ) : (
+              <>
+                <SearchIcon className="h-4 w-4" />
+                Search
+              </>
+            )}
           </Button>
         </div>
       </div>

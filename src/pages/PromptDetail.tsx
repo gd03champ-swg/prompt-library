@@ -1,11 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
 import { Header } from "@/components/Header";
 import { PromptSearch } from "@/components/PromptSearch";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy } from "lucide-react";
+import { ArrowLeft, Copy, SparklesIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -163,9 +162,12 @@ const PromptDetail = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-12"
         >
-          <h2 className="text-xl font-semibold mb-6 text-center">
-            Try it now
-          </h2>
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <SparklesIcon className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold text-center">
+              AI-powered Search
+            </h2>
+          </div>
           
           <PromptSearch 
             defaultPrompt={prompt.prompt}
