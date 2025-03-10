@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Search as SearchIcon, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
 
 interface PromptSearchProps {
@@ -18,6 +18,7 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
   const [searchValue, setSearchValue] = useState(examplePrompt || "");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const { searchPromptsWithLLM, isSearching } = usePrompts();
   
   // Debounce search input
@@ -30,6 +31,23 @@ export function PromptSearch({ defaultPrompt, examplePrompt, onSearch = false }:
     
     return () => clearTimeout(timer);
   }, [searchValue]);
+  
+  // Check if we're on the detail page and extract search param from URL if present
+  useEffect(() => {
+    // Only run this on the home page
+    if (location.pathname === '/') {
+      const searchParams = new URLSearchParams(location.search);
+      const searchQuery = searchParams.get('search');
+      
+      if (searchQuery) {
+        setSearchValue(searchQuery);
+        // Trigger search if we have a query param and onSearch is true
+        if (onSearch) {
+          searchPromptsWithLLM(searchQuery);
+        }
+      }
+    }
+  }, [location, onSearch, searchPromptsWithLLM]);
   
   // Perform search when debounced search term changes and onSearch is true
   useEffect(() => {

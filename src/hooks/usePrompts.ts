@@ -1,7 +1,8 @@
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Prompt } from "@/types";
 import { promptsData } from "@/data/prompts";
+import { supabase } from "@/integrations/supabase/client";
 
 export function usePrompts() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -44,7 +45,7 @@ export function usePrompts() {
     return filteredPrompts[randomIndex];
   };
   
-  const searchPromptsWithLLM = async (query: string): Promise<void> => {
+  const searchPromptsWithLLM = useCallback(async (query: string): Promise<void> => {
     if (!query.trim()) {
       setSearchResults([]);
       return;
@@ -53,18 +54,24 @@ export function usePrompts() {
     setIsSearching(true);
     
     try {
-      // Call the real API endpoint for LLM-powered search
-      const response = await fetch(`/api/search-prompts?query=${encodeURIComponent(query)}`);
+      // Call our Supabase edge function
+      const { data, error } = await supabase.functions.invoke('search-prompts', {
+        body: { 
+          query, 
+          prompts: filteredPrompts // Send the filtered prompts to search through
+        }
+      });
       
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+      if (error) {
+        console.error("Error from Supabase function:", error);
+        throw error;
       }
       
-      const data = await response.json();
-      setSearchResults(data.results || []);
+      console.log("Search results from Gemini:", data.results);
       
-      // If API fails or returns no results, fallback to local filtering
-      if (!data.results || data.results.length === 0) {
+      if (data.results && data.results.length > 0) {
+        setSearchResults(data.results);
+      } else {
         console.log("No results from API, falling back to local search");
         
         // Basic local filtering as fallback
@@ -76,7 +83,6 @@ export function usePrompts() {
         
         setSearchResults(localResults);
       }
-      
     } catch (error) {
       console.error("Error searching prompts:", error);
       
@@ -91,7 +97,7 @@ export function usePrompts() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [filteredPrompts]);
   
   const clearSearch = () => {
     setSearchResults([]);
