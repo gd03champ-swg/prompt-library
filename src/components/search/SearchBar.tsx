@@ -46,7 +46,7 @@ export function SearchBar({
       />
       
       <div className="flex items-center justify-between border-t border-input/30 px-4 py-2">
-        <FilterButtons />
+        <FilterButtons isSearching={isSearching} />
         <ActionButtons onSearch={onSearch} isSearching={isSearching} />
       </div>
     </div>
