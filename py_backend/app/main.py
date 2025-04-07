@@ -10,6 +10,7 @@ app = FastAPI(
     title=APP_NAME,
     description="Backend API for Prompt Library",
     version="0.1.0",
+    redirect_slashes=False
 )
 
 # Add CORS middleware
