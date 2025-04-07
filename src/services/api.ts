@@ -6,7 +6,7 @@ export const apiService = {
   // Get all models
   async getAllModels(): Promise<string[]> {
     try {
-      const response = await fetch(`${API_URL}/prompts/models`);
+      const response = await fetch(`${API_URL}/prompts/models/`);
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -22,7 +22,7 @@ export const apiService = {
   // Get all prompts
   async getAllPrompts(selectedTeams?: string[]): Promise<Prompt[]> {
     try {
-      let url = `${API_URL}/prompts`;
+      let url = `${API_URL}/prompts/`;
       
       if (selectedTeams && selectedTeams.length > 0) {
         url += `?teams=${selectedTeams.join(',')}`;
@@ -44,7 +44,7 @@ export const apiService = {
   // Get a prompt by ID
   async getPromptById(id: number): Promise<Prompt | undefined> {
     try {
-      const response = await fetch(`${API_URL}/prompts/${id}`);
+      const response = await fetch(`${API_URL}/prompts/${id}/`);
       
       if (response.status === 404) {
         return undefined;
@@ -64,7 +64,7 @@ export const apiService = {
   // Get prompts by team
   async getPromptsByTeam(teamName: string): Promise<Prompt[]> {
     try {
-      const response = await fetch(`${API_URL}/prompts/team/${encodeURIComponent(teamName)}`);
+      const response = await fetch(`${API_URL}/prompts/team/${encodeURIComponent(teamName)}/`);
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -80,7 +80,7 @@ export const apiService = {
   // Get all teams
   async getAllTeams(): Promise<string[]> {
     try {
-      const response = await fetch(`${API_URL}/prompts/teams`);
+      const response = await fetch(`${API_URL}/prompts/teams/`);
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -96,7 +96,7 @@ export const apiService = {
   // Add a new prompt
   async addPrompt(prompt: Omit<Prompt, 'id'>): Promise<Prompt> {
     try {
-      const response = await fetch(`${API_URL}/prompts`, {
+      const response = await fetch(`${API_URL}/prompts/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export const apiService = {
   // Search prompts
   async searchPrompts(query: string, teams: string[]): Promise<Prompt[]> {
     try {
-      const response = await fetch(`${API_URL}/prompts/search`, {
+      const response = await fetch(`${API_URL}/prompts/search/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
