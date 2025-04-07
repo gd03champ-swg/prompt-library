@@ -1,8 +1,6 @@
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Prompt } from "@/types";
-import { promptsData } from "@/data/prompts";
-import { supabase } from "@/integrations/supabase/client";
+import { apiService } from "@/services/api";
 
 export function usePrompts() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -12,33 +10,48 @@ export function usePrompts() {
   const [isSearching, setIsSearching] = useState(false);
   
   useEffect(() => {
-    // Simulate loading from an API
-    const timer = setTimeout(() => {
-      setPrompts(promptsData);
-      
-      // Set all teams as initially selected
-      const allTeams = [...new Set(promptsData.map(prompt => prompt.teamName))];
-      setSelectedTeams(allTeams);
-      
-      setLoading(false);
-    }, 800);
+    async function loadPrompts() {
+      try {
+        const data = await apiService.getAllPrompts();
+        setPrompts(data);
+        
+        // Set all teams as initially selected
+        const allTeams = [...new Set(data.map(prompt => prompt.teamName))];
+        setSelectedTeams(allTeams);
+      } catch (error) {
+        console.error("Error loading prompts:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
     
-    return () => clearTimeout(timer);
+    loadPrompts();
   }, []);
   
-  // Define filteredPrompts before it's used in searchPromptsWithLLM
+  // Define filteredPrompts
   const filteredPrompts = useMemo(() => {
     if (selectedTeams.length === 0) return [];
     return prompts.filter(prompt => selectedTeams.includes(prompt.teamName));
   }, [prompts, selectedTeams]);
   
-  const getPromptById = (id: number): Prompt | undefined => {
-    return prompts.find(prompt => prompt.id === id);
-  };
+  const getPromptById = useCallback(async (id: number): Promise<Prompt | undefined> => {
+    try {
+      const prompt = await apiService.getPromptById(id);
+      return prompt || undefined;
+    } catch (error) {
+      console.error(`Error fetching prompt ${id}:`, error);
+      return undefined;
+    }
+  }, []);
   
-  const getPromptsByTeam = (teamName: string): Prompt[] => {
-    return prompts.filter(prompt => prompt.teamName === teamName);
-  };
+  const getPromptsByTeam = useCallback(async (teamName: string): Promise<Prompt[]> => {
+    try {
+      return await apiService.getPromptsByTeam(teamName);
+    } catch (error) {
+      console.error(`Error fetching prompts for team ${teamName}:`, error);
+      return [];
+    }
+  }, []);
   
   const getAllTeams = (): string[] => {
     const teams = prompts.map(prompt => prompt.teamName);
@@ -51,15 +64,15 @@ export function usePrompts() {
     return filteredPrompts[randomIndex];
   };
   
-  const addPrompt = (newPrompt: Omit<Prompt, "id">): Prompt => {
-    // Find the highest ID to generate a new one
-    const highestId = Math.max(...prompts.map(p => p.id), 0);
-    const promptWithId = { ...newPrompt, id: highestId + 1 };
-    
-    // In a real application, you would save to a database here
-    setPrompts(prevPrompts => [...prevPrompts, promptWithId]);
-    
-    return promptWithId;
+  const addPrompt = async (newPrompt: Omit<Prompt, "id">): Promise<Prompt> => {
+    try {
+      const promptWithId = await apiService.addPrompt(newPrompt);
+      setPrompts(prevPrompts => [...prevPrompts, promptWithId]);
+      return promptWithId;
+    } catch (error) {
+      console.error("Error adding prompt:", error);
+      throw error;
+    }
   };
   
   const searchPromptsWithLLM = useCallback(async (query: string): Promise<void> => {
@@ -71,35 +84,9 @@ export function usePrompts() {
     setIsSearching(true);
     
     try {
-      // Call our Supabase edge function
-      const { data, error } = await supabase.functions.invoke('search-prompts', {
-        body: { 
-          query, 
-          prompts: filteredPrompts // Send the filtered prompts to search through
-        }
-      });
-      
-      if (error) {
-        console.error("Error from Supabase function:", error);
-        throw error;
-      }
-      
-      console.log("Search results from Gemini:", data.results);
-      
-      if (data.results && data.results.length > 0) {
-        setSearchResults(data.results);
-      } else {
-        console.log("No results from API, falling back to local search");
-        
-        // Basic local filtering as fallback
-        const localResults = filteredPrompts.filter(prompt => {
-          const content = `${prompt.useCase} ${prompt.prompt} ${prompt.teamName}`.toLowerCase();
-          const searchTerm = query.toLowerCase();
-          return content.includes(searchTerm);
-        });
-        
-        setSearchResults(localResults);
-      }
+      // Use the API search endpoint
+      const results = await apiService.searchPrompts(query, selectedTeams);
+      setSearchResults(results);
     } catch (error) {
       console.error("Error searching prompts:", error);
       
@@ -114,7 +101,7 @@ export function usePrompts() {
     } finally {
       setIsSearching(false);
     }
-  }, [filteredPrompts]);
+  }, [filteredPrompts, selectedTeams]);
   
   const clearSearch = () => {
     setSearchResults([]);

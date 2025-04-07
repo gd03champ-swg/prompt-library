@@ -1,4 +1,3 @@
-
 export interface Prompt {
   id: number;
   teamName: string;
@@ -6,4 +5,5 @@ export interface Prompt {
   prompt: string;
   examplePrompt: string;
   howToUse?: string;
+  model?: string; // Add model field
 }

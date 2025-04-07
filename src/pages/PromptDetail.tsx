@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
@@ -18,6 +17,7 @@ const PromptDetail = () => {
   const navigate = useNavigate();
   const { getPromptById, loading, prompts, hasSearchResults, clearSearch } = usePrompts();
   const [prompt, setPrompt] = useState<Prompt | undefined>(undefined);
+  const [promptLoading, setPromptLoading] = useState(false);
   
   // Split into two separate effects to avoid the infinite loop
   useEffect(() => {
@@ -26,20 +26,32 @@ const PromptDetail = () => {
 
   useEffect(() => {
     clearSearch();
-  }, [id]); // Only clear search when id changes
+  }, [id, clearSearch]); // Only clear search when id changes
   
   useEffect(() => {
-    if (!loading && id) {
-      const promptData = getPromptById(parseInt(id));
-      setPrompt(promptData);
-      
-      if (!promptData) {
-        navigate("/");
+    async function fetchPrompt() {
+      if (!loading && id) {
+        setPromptLoading(true);
+        try {
+          const promptData = await getPromptById(parseInt(id));
+          setPrompt(promptData);
+          
+          if (!promptData) {
+            navigate("/");
+          }
+        } catch (error) {
+          console.error("Error fetching prompt:", error);
+          navigate("/");
+        } finally {
+          setPromptLoading(false);
+        }
       }
     }
+    
+    fetchPrompt();
   }, [id, loading, getPromptById, navigate]);
   
-  if (loading) {
+  if (loading || promptLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />

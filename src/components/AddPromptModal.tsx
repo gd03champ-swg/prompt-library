@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Dialog, 
@@ -23,10 +22,11 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { ModelSelector } from "@/components/ModelSelector";
 
 export function AddPromptModal() {
   const { isOpen, closeModal } = useAddPromptModal();
-  const { getAllTeams, allPrompts } = usePrompts();
+  const { getAllTeams, allPrompts, addPrompt } = usePrompts();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -35,7 +35,8 @@ export function AddPromptModal() {
     useCase: "",
     prompt: "",
     examplePrompt: "",
-    howToUse: ""
+    howToUse: "",
+    model: "claude-sonnet-3.5"
   });
   
   const handleChange = (
@@ -49,22 +50,25 @@ export function AddPromptModal() {
     setFormData((prev) => ({ ...prev, teamName: value }));
   };
   
+  const handleModelChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, model: value }));
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // Find the highest ID in the current prompts to generate a new one
-      const highestId = Math.max(...allPrompts.map(p => p.id), 0);
-      const newPrompt = {
-        ...formData,
-        id: highestId + 1
-      };
+      // Use the addPrompt function from usePrompts hook
+      await addPrompt({
+        teamName: formData.teamName,
+        useCase: formData.useCase,
+        prompt: formData.prompt,
+        examplePrompt: formData.examplePrompt,
+        howToUse: formData.howToUse,
+        model: formData.model
+      });
       
-      // In a real app, we would save to a database here
-      console.log("Adding new prompt:", newPrompt);
-      
-      // For now, just pretend we saved it successfully
       toast({
         title: "Prompt added",
         description: "Your prompt has been added to the library.",
@@ -76,7 +80,8 @@ export function AddPromptModal() {
         useCase: "",
         prompt: "",
         examplePrompt: "",
-        howToUse: ""
+        howToUse: "",
+        model: "claude-sonnet-3.5"
       });
     } catch (error) {
       console.error("Error adding prompt:", error);
@@ -91,7 +96,7 @@ export function AddPromptModal() {
   };
   
   const teams = getAllTeams();
-  const isFormValid = formData.teamName && formData.useCase && formData.prompt && formData.examplePrompt;
+  const isFormValid = formData.teamName && formData.useCase && formData.prompt && formData.examplePrompt && formData.model;
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
@@ -166,6 +171,14 @@ export function AddPromptModal() {
               placeholder="Provide additional tips on how to use this prompt effectively"
               value={formData.howToUse}
               onChange={handleChange}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="model">Default Model</Label>
+            <ModelSelector
+              value={formData.model}
+              onChange={handleModelChange}
             />
           </div>
           

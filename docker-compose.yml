@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - API_URL=http://localhost:3001
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./py_backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - DYNAMODB_TABLE_NAME=promptLibrary
+      - AWS_REGION=ap-south-1
+    volumes:
+      # Mount AWS credentials from host to container
+      - ~/.aws:/root/.aws:ro

@@ -1,0 +1,22 @@
+{
+  "name": "prompt-library-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Prompt Library",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "migrate": "node src/scripts/migrate.js",
+    "update-models": "node src/scripts/update-prompts-with-model.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.3",
+    "mongoose": "^8.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
