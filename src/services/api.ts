@@ -1,6 +1,6 @@
 import { Prompt } from '@/types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://chat-prompts-backend.swiggy.cloud/api';
 
 export const apiService = {
   // Get all models
