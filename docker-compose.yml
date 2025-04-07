@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - API_URL=http://localhost:3001
+        - API_URL=https://chat-prompts-backend.swiggy.cloud
     ports:
       - "3000:3000"
     environment:

@@ -12,7 +12,9 @@ RUN npm ci
 COPY . .
 
 # Set API URL environment variable
-ARG API_URL=http://localhost:3001
+#ARG API_URL=http://localhost:3001
+ARG API_URL=https://chat-prompts-backend.swiggy.cloud
+
 ENV VITE_API_URL=$API_URL
 
 # Build the application
