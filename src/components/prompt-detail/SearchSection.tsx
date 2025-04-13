@@ -6,14 +6,18 @@ import { ExternalLink, SparklesIcon } from "lucide-react";
 
 interface SearchSectionProps {
   prompt: Prompt;
+  editedExamplePrompt?: string;
 }
 
-export function SearchSection({ prompt }: SearchSectionProps) {
+export function SearchSection({ prompt, editedExamplePrompt = "" }: SearchSectionProps) {
   const [selectedModel, setSelectedModel] = useState(prompt.model || "claude-sonnet-3.5");
   
   const handleOpenInSwiggyChat = () => {
-    // Construct the URL with the prompt and model
-    const encodedPrompt = encodeURIComponent(prompt.prompt);
+    // Concatenate the main prompt with the example prompt
+    const fullPrompt = `${prompt.prompt}\n\n${editedExamplePrompt || prompt.examplePrompt}`;
+    
+    // Construct the URL with the concatenated prompt and model
+    const encodedPrompt = encodeURIComponent(fullPrompt);
     const url = `https://chat.swiggy.cloud/?models=${selectedModel}&q=${encodedPrompt}`;
     
     // Open in a new tab

@@ -3,13 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { usePrompts } from "@/hooks/usePrompts";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { PromptHeader } from "@/components/prompt-detail/PromptHeader";
-import { PromptContent } from "@/components/prompt-detail/PromptContent";
 import { PromptHowToUse } from "@/components/prompt-detail/PromptHowToUse";
 import { SearchSection } from "@/components/prompt-detail/SearchSection";
 import { SearchResults } from "@/components/prompt-detail/SearchResults";
 import { PromptDetailSkeleton } from "@/components/prompt-detail/PromptDetailSkeleton";
+import { UnifiedPromptSection } from "@/components/prompt-detail/UnifiedPromptSection";
 import { Prompt } from "@/types";
 
 const PromptDetail = () => {
@@ -18,6 +18,7 @@ const PromptDetail = () => {
   const { getPromptById, loading, prompts, hasSearchResults, clearSearch } = usePrompts();
   const [prompt, setPrompt] = useState<Prompt | undefined>(undefined);
   const [promptLoading, setPromptLoading] = useState(false);
+  const [editedExamplePrompt, setEditedExamplePrompt] = useState<string>("");
   
   // Split into two separate effects to avoid the infinite loop
   useEffect(() => {
@@ -81,10 +82,17 @@ const PromptDetail = () => {
         </Button>
         
         <PromptHeader prompt={prompt} />
-        <PromptContent prompt={prompt} />
+        <UnifiedPromptSection 
+          prompt={prompt}
+          editedExamplePrompt={editedExamplePrompt}
+          onExamplePromptChange={setEditedExamplePrompt} 
+        />
         <PromptHowToUse prompt={prompt} />
         
-        <SearchSection prompt={prompt} />
+        <SearchSection 
+          prompt={prompt} 
+          editedExamplePrompt={editedExamplePrompt}
+        />
         <SearchResults hasResults={hasSearchResults} prompts={prompts} />
       </main>
     </div>

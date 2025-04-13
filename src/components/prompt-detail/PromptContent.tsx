@@ -24,24 +24,32 @@ export function PromptContent({ prompt }: PromptContentProps) {
   
   return (
     <div className={cn(
-      "p-6 rounded-xl border bg-card mt-6",
-      "flex flex-col md:flex-row justify-between items-start gap-4"
+      "p-6 rounded-xl border border-primary/20 bg-card mt-6",
+      "flex flex-col justify-between transition-all duration-200",
+      "hover:border-primary/30 hover:shadow-sm"
     )}>
-      <div className="flex-1">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-          Prompt
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-sm font-semibold text-foreground flex items-center">
+          <span className="text-primary mr-2">•</span>
+          Prompt Template
         </h3>
-        <p className="text-base">{prompt.prompt}</p>
+        
+        <Button
+          onClick={handleCopyPrompt}
+          variant="outline"
+          size="sm"
+          className="flex-shrink-0"
+        >
+          <Copy className="mr-2 h-4 w-4" />
+          Copy
+        </Button>
       </div>
       
-      <Button
-        onClick={handleCopyPrompt}
-        variant="outline"
-        className="flex-shrink-0"
-      >
-        <Copy className="mr-2 h-4 w-4" />
-        Copy
-      </Button>
+      <div className="mt-2">
+        <div className="bg-muted/30 p-4 rounded-md font-mono text-sm whitespace-pre-wrap border border-muted">
+          {prompt.prompt}
+        </div>
+      </div>
     </div>
   );
 }
